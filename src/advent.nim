@@ -1,5 +1,12 @@
 import strutils, sequtils
 
+type
+  InvalidOpCode* = object of Exception
+  ParameterMode = tuple
+    pmFirstisImm: bool
+    pmSecondisImm: bool
+    pmThirdisImm: bool
+
 
 proc Load*(filename: string): seq[int] =
   let contents = readFile(filename).strip().split(',').map(parseInt)
@@ -11,31 +18,39 @@ proc Interp*(program: seq[int]): seq[int] =
    curr = 0
    op: int64
    program = program
+   progLen = len(program)
 
-  while curr < len(program):
-    # modes := []int64{0, 0, 0}
-
+  while curr < progLen:
     op = program[curr]
 
-    # slice := strconv.FormatInt(op, 10)
+    var
+      mode: ParameterMode
+      opStr = $op
+      opLen = opStr.len
 
-    # if len(slice) > 2 {
-    #   op, err := strconv.Atoi(slice[len(slice)-2:]) // update op code
-    #   if err != nil {
-    #     log.Fatal("Unable to update opcode", err)
-    #   }
+    if opLen > 5:
+      raise newException(InvalidOpCode, "Opcode " & $op & " was too long")
 
-    #   slice = slice[len(slice)-2]
-    # }
+    if opLen >= 5:
+      mode.pmThirdisImm = opStr[^5] == '1'
 
-    # fmt.Println(slice[:3])            // first 3 digits (111)
-    # fmt.Println(slice[len(slice)-2:]) // and the last 2 digits (55)
+    if opLen >= 4:
+      mode.pmSecondisImm = opStr[^4] == '1'
+
+    if opLen >= 3:
+      mode.pmFirstisImm = opStr[^3] == '1'
+
+      # also reset the op to parse out the other stuff
+      op = parseInt(opStr[^2..^1])
+
 
     case op
     of 1: # 1, [l], [r], [dst] -> dst = l + r
       var
-        left = program[program[curr+1]]
-        right = program[program[curr+2]]
+        left = if mode.pmFirstisImm: program[curr+1]
+               else: program[program[curr+1]]
+        right = if mode.pmSecondisImm: program[curr+2]
+                else: program[program[curr+2]]
         dest = program[curr+3]
 
       program[dest] = left + right
@@ -43,8 +58,10 @@ proc Interp*(program: seq[int]): seq[int] =
       curr += 4
     of 2: # 2, [l], [r], [dst] -> dst = l * r
       var
-        left = program[program[curr+1]]
-        right = program[program[curr+2]]
+        left = if mode.pmFirstisImm: program[curr+1]
+               else: program[program[curr+1]]
+        right = if mode.pmSecondisImm: program[curr+2]
+                else: program[program[curr+2]]
         dest = program[curr+3]
 
       program[dest] = left * right
@@ -79,4 +96,4 @@ proc Interp*(program: seq[int]): seq[int] =
 
 
 when isMainModule:
-  echo Interp(Load("input"))
+  discard Interp(Load("input.int"))
