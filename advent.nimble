@@ -5,7 +5,7 @@ author        = "Sam Chow"
 description   = "A new awesome nimble package"
 license       = "MIT"
 srcDir        = "src"
-bin           = @["advent"]
+bin           = @["advent.bin"]
 
 
 
