@@ -12,3 +12,4 @@ bin           = @["advent.bin"]
 # Dependencies
 
 requires "nim >= 0.20.2"
+

@@ -1,5 +1,5 @@
 import unittest
-import pkg/src/advent
+import intcode
 
 
 suite "run  intcode":
