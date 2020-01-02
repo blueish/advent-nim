@@ -1,5 +1,8 @@
 import strutils, sequtils
 import logging
+import streams
+
+import helpers
 
 var logger = newConsoleLogger()
 
@@ -28,7 +31,7 @@ proc Load*(filename: string): seq[int] =
 99: # terminate
 ]#
 
-proc Interp*(program: seq[int]): seq[int] =
+proc Interp*(program: seq[int], ios: IoStream): seq[int] =
   var
    curr = 0
    op: int64
@@ -92,7 +95,7 @@ proc Interp*(program: seq[int]): seq[int] =
       # opcode 3 gets user input and puts it in dst
       echo "Input requested > "
       var
-        input = stdin.readLine()
+        input = ios.readLine()
         dest = program[curr+1]
 
       logger.log(lvlDebug, "op 3", " ", input, " ", dest)
@@ -105,7 +108,7 @@ proc Interp*(program: seq[int]): seq[int] =
       var
         dest = program[curr+1]
 
-      echo "Computer output: ", program[dest]
+      ios.writeLine(program[dest])
 
       curr += 2
     of 5: # 5, [c], [d] -> pc = f IFF d != 0

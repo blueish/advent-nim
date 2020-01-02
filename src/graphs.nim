@@ -66,14 +66,14 @@ proc DistanceBetweenOrbiting*(graph: Table[string, Node], start: string, finish:
     node = node.orbits
     start_path.add(node.name)
 
-  node = graph[finish]
+  node = graph[finish].orbits
 
   while node.orbits != nil:
-    node = node.orbits
     if node.name in start_path:
       return count + start_path.find(node.name)
 
     count += 1
+    node = node.orbits
 
 
   return -1

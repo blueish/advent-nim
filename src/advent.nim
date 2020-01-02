@@ -1,7 +1,8 @@
-import intcode, logging
-export intcode
+import logging
+import intcode
+import helpers
 
 
 when isMainModule:
   setLogFilter(lvlError)
-  discard Interp(Load("input.int"))
+  discard Interp(Load("input.int"), useStdIo())
